@@ -1,0 +1,31 @@
+{
+    "mid_channels": {
+        "tdnn2_conv": 42, 
+        "tdnn3_conv": 51, 
+        "tdnn1_conv": 10, 
+        "tdnn4_dense": 25, 
+        "tdnn5_dense": 32, 
+        "tdnn7_dense": 64, 
+        "tdnn6_dense": 32
+    }, 
+    "updated": true, 
+    "network_name": "tdnn_svd", 
+    "dimension": {
+        "tdnn2_conv": 0.8, 
+        "tdnn3_conv": 0.9, 
+        "tdnn1_conv": 0.5, 
+        "tdnn4_dense": 0.5, 
+        "tdnn5_dense": 32, 
+        "tdnn7_dense": 100, 
+        "tdnn6_dense": 32
+    }, 
+    "split": {
+        "tdnn2_conv": false, 
+        "tdnn3_conv": false, 
+        "tdnn1_conv": false, 
+        "tdnn4_dense": false, 
+        "tdnn5_dense": true, 
+        "tdnn7_dense": false, 
+        "tdnn6_dense": true
+    }
+}
