@@ -15,22 +15,23 @@
 . ./path.sh
 set -e
 
-root=/home/heliang05/liuyi/voxceleb
+myroot=/data2/liry/test/tf-kaldi-speaker/egs/voxceleb/xatx
+root=/data2/liry/tf-kaldi-speaker-master/egs/voxceleb/7mea_gpu
 data=$root/data
-exp=$root/exp
+exp=$myroot/exp_32_semi5_6_32
 mfccdir=$root/mfcc
 vaddir=$root/mfcc
 
-stage=0
+stage=7
 
 # The kaldi voxceleb egs directory
-kaldi_voxceleb=/home/heliang05/liuyi/software/kaldi_gpu/egs/voxceleb
+kaldi_voxceleb=/home/liry/ruyun/kaldi/egs/voxceleb
 
-voxceleb1_trials=$data/voxceleb_test/trials
-voxceleb1_root=/home/heliang05/liuyi/data/voxceleb/voxceleb1
-voxceleb2_root=/home/heliang05/liuyi/data/voxceleb/voxceleb2
-musan_root=/home/heliang05/liuyi/data/musan
-rirs_root=/home/heliang05/liuyi/data/RIRS_NOISES
+voxceleb1_trials=$data/voxceleb1_test/trials
+voxceleb1_root=/data2/liry/voxceleb/voxceleb1
+voxceleb2_root=/data2/liry/voxceleb/voxceleb2
+musan_root=/data2/liry/musan
+rirs_root=/home/liry/ruyun/kaldi/egs/sre16/v2/RIRS_NOISES
 
 if [ $stage -le -1 ]; then
     # link the directories
@@ -40,11 +41,13 @@ if [ $stage -le -1 ]; then
     ln -s $kaldi_voxceleb/v2/sid ./
     ln -s $kaldi_voxceleb/v2/conf ./
     ln -s $kaldi_voxceleb/v2/local ./
+    echo "finish link"
+    exit
 fi
 
 if [ $stage -le 0 ]; then
-  local/make_voxceleb2.pl $voxceleb2_root dev $data/voxceleb2_train
-  local/make_voxceleb2.pl $voxceleb2_root test $data/voxceleb2_test
+ # local/make_voxceleb2.pl $voxceleb2_root dev $data/voxceleb2_train
+ # local/make_voxceleb2.pl $voxceleb2_root test $data/voxceleb2_test
   # This script reates data/voxceleb1_test and data/voxceleb1_train.
   # Our evaluation set is the test portion of VoxCeleb1.
   local/make_voxceleb1.pl $voxceleb1_root $data
@@ -217,11 +220,11 @@ if [ $stage -le 7 ]; then
 #    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
 #    $nnetdir
 #
-#nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m4_linear_bn_1e-2
-#nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_asoftmax_m4_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $nnetdir
+nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m4_linear_bn_1e-2
+nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_2_gpu --continue-training false nnet_conf/tdnn_asoftmax_m4_linear_bn_1e-2.json \
+    $data/voxceleb_train_combined_no_sil/train2 $data/voxceleb_train_combined_no_sil/train2/spklist \
+    $data/voxceleb_train_combined_no_sil/valid2 $data/voxceleb_train_combined_no_sil/train2/spklist \
+    $nnetdir
 #
 #
 ## Additive margin softmax
@@ -315,11 +318,11 @@ if [ $stage -le 7 ]; then
 
 
 # Add attention
-nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att
-nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att.json \
-    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
-    $nnetdir
+# nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att
+# nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att.json \
+#     $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
+#     $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#     $nnetdir
 
 
 exit 1
@@ -327,7 +330,8 @@ echo
 fi
 
 
-nnetdir=$exp/xvector_nnet_tdnn_e2e_m0.1_linear_bn_1e-4
+#nnetdir=$exp/xvector_nnet_tdnn_e2e_m0.1_linear_bn_1e-4
+nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m4_linear_bn_1e-2
 checkpoint='last'
 
 if [ $stage -le 8 ]; then
@@ -338,7 +342,7 @@ if [ $stage -le 8 ]; then
 
   nnet/run_extract_embeddings.sh --cmd "$train_cmd" --nj 40 --use-gpu false --checkpoint $checkpoint --stage 0 \
     --chunk-size 10000 --normalize false --node "tdnn6_dense" \
-    $nnetdir $data/voxceleb_test $nnetdir/xvectors_voxceleb_test
+    $nnetdir $data/voxceleb1_test $nnetdir/xvectors_voxceleb_test
 fi
 
 if [ $stage -le 9 ]; then
