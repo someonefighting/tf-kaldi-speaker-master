@@ -9,10 +9,11 @@ from model.common import l2_scaling
 #from model.tdnn import tdnn
 #from model.svd_tdnn import tdnn_svd6
 #from model.dynamic_tdnn import tdnn_svd
-from model_src.ftdnn import tdnn
+from model.ftdnn import tdnn
 from model_src.loss import softmax
 from model_src.loss import asoftmax, additive_margin_softmax, additive_angular_margin_softmax
 from model_src.loss import semihard_triplet_loss, angular_triplet_loss, e2e_valid_loss, generalized_angular_triplet_loss
+from model_src.loss import extract_asoftmax
 from dataset.data_loader import KaldiDataRandomQueue, KaldiDataSeqQueue, DataOutOfRange
 from misc.utils import substring_in_list, activation_summaries
 from six.moves import range
@@ -226,8 +227,11 @@ class Trainer(object):
                 # used, the output of the last layer may be a better choice. So it is impossible to specify the
                 # embedding node inside the network structure. The configuration will tell the network to output the
                 # correct activations as the embeddings.
-                _, endpoints = self.entire_network(self.pred_features, self.params, is_training, reuse_variables)
-                self.embeddings = endpoints[self.params.embedding_node]
+                features, endpoints = self.entire_network(self.pred_features, self.params, is_training, reuse_variables)
+                # TODO:
+                endpoints_loss = extract_asoftmax(features, num_speakers, self.params, is_training, reuse_variables)
+                #self.embeddings = endpoints[self.params.embedding_node]
+                self.embeddings = endpoints_loss[self.params.embedding_node]
                 if self.saver is None:
                     self.saver = tf.train.Saver()
             return
@@ -469,7 +473,7 @@ class Trainer(object):
         """
 
         def get_semi_orthogonal_for_cnn(mat):
-            M = tf.reshape(mat, [-1, int(mat.shape[3])])
+            M = tf.reshape(mat, [-1, mat.shape[3]])
             I = tf.Variable(np.identity(M.shape[0]), dtype=tf.float32)
             for _ in range(10):
                 P = tf.matmul(M, M, transpose_b=True)

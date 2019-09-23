@@ -5,15 +5,12 @@ import sys
 import time
 import numpy as np
 from model.common import l2_scaling
-#from model.svd_tdnn import tdnn_svd6
-#from model.tdnn import tdnn
-#from model.svd_tdnn import tdnn_svd6
-#from model.dynamic_tdnn import tdnn_svd
-from model_src.ftdnn import tdnn
-from model_src.loss import softmax
-from model_src.loss import asoftmax, additive_margin_softmax, additive_angular_margin_softmax
-from model_src.loss import semihard_triplet_loss, angular_triplet_loss, e2e_valid_loss, generalized_angular_triplet_loss
-from dataset.data_loader import KaldiDataRandomQueue, KaldiDataSeqQueue, DataOutOfRange
+from model_src.resnet import resnet
+from model.loss import softmax
+from model.loss import asoftmax, additive_margin_softmax, additive_angular_margin_softmax
+from model.loss import semihard_triplet_loss, angular_triplet_loss, e2e_valid_loss, generalized_angular_triplet_loss
+#from model.loss import level_distillation
+from dataset.data_loader import KaldiDataRandomQueue, KaldiDataSeqQueue, DataOutOfRange#, KaldiDataRandomQueueDistill
 from misc.utils import substring_in_list, activation_summaries
 from six.moves import range
 
@@ -32,18 +29,13 @@ class Trainer(object):
             model_dir: The model directory.
             single_cpu: Run Tensorflow on one cpu. (default = False)
         """
-        self.constrained_semi_ops = None
 
         # The network configuration is set while the loss is left to the build function.
         # I think we can switch different loss functions during training epochs.
         # Then simple re-build the network can give us a different loss. The main network won't change at that case.
         self.network_type = params.network_type
-        if params.network_type == "tdnn":
-            self.network = tdnn
- #       elif params.network_type == "tdnn_svd6":
- #           self.network = tdnn_svd6
- #       elif params.network_type == "tdnn_svd":
- #           self.network = tdnn_svd
+        if params.network_type == "resnet":
+            self.network = resnet
         else:
             raise NotImplementedError("Not implement %s network" % params.network_type)
         self.loss_type = None
@@ -116,6 +108,7 @@ class Trainer(object):
         # Now we define the placeholder in the build routines.
         self.train_features = None
         self.train_labels = None
+        self.train_xvectors = None
         self.valid_features = None
         self.valid_labels = None
         self.pred_features = None
@@ -255,6 +248,8 @@ class Trainer(object):
             self.loss_network = angular_triplet_loss
         elif loss_type == "generalized_angular_triplet_loss":
             self.loss_network = generalized_angular_triplet_loss
+        elif loss_type == "level_distillation":
+            self.loss_network = level_distillation
         else:
             raise NotImplementedError("Not implement %s loss" % self.loss_type)
 
@@ -359,7 +354,6 @@ class Trainer(object):
         # There is a copy in `set_trainable_variables`
         with tf.name_scope("train") as scope:
             features, endpoints = self.entire_network(self.train_features, self.params, is_training, reuse_variables)
-            print(features.shape)
             loss, endpoints_loss = self.loss_network(features, self.train_labels, num_speakers, self.params, is_training, reuse_variables)
             self.endpoints = endpoints
 
@@ -456,28 +450,269 @@ class Trainer(object):
         # The training summary writer
         if self.summary_writer is None:
             self.summary_writer = tf.summary.FileWriter(self.model, self.sess.graph)
+        return
+    def build_distill(self, mode, dim, loss_type=None, num_speakers=None, noupdate_var_list=None):
+        """ Build a network.
 
-        if self.constrained_semi_ops is None:
-            def get_semi_orthogonal_for_cnn(mat):
-                M = tf.reshape(mat, [-1, int(mat.shape[3])])
-                I = tf.Variable(np.identity(M.shape[0]), dtype=tf.float32)
-                for _ in range(10):
-                    P = tf.matmul(M, M, transpose_b=True)
-                    alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
-                    M = M - (1 / (2.0 * alpha2)) * tf.matmul(tf.subtract(P, alpha2 * I), M)
-                P = tf.matmul(M, M, transpose_b=True)
-                alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
-                M = M / alpha2
-                ans = tf.reshape(M, mat.shape)
-                return ans
+        Currently, I use placeholder in the graph and feed data during sess.run. So no need to parse
+        features and labels.
 
-            graph = tf.get_default_graph().finalize()
-            constrained_semi_ops = []
-            for i in range(2, 10):
-                kernel = graph.get_tensor_by_name('tdnn/%d_semio/kernel:0' % i)
-                semi = get_semi_orthogonal_for_cnn(kernel)
-                constrained_semi_ops.append(tf.assign(kernel, semi))
-            self.constrained_semi_ops = constrained_semi_ops
+        Args:
+            mode: `train`, `valid` or `predict`.
+            dim: The dimension of the feature.
+            loss_type: Which loss function do we use. Could be None when mode == predict
+            num_speakers: The total number of speakers. Used in softmax-like network
+            noupdate_var_list: In the fine-tuning, some variables are fixed. The list contains their names (or part of their names).
+                               We use `noupdate` rather than `notrain` because some variables are not trainable, e.g.
+                               the mean and var in the batchnorm layers.
+        """
+        assert(mode == "train" or mode == "valid" or mode == "predict")
+        is_training = (mode == "train")
+        reuse_variables = True if self.is_built else None
+
+        # Create a new path for prediction, since the training may build a tower the support multi-GPUs
+        if mode == "predict":
+            self.pred_features = tf.placeholder(tf.float32, shape=[None, None, dim], name="pred_features")
+            with tf.name_scope("predict") as scope:
+                tf.logging.info("Extract embedding from node %s" % self.params.embedding_node)
+                # There is no need to do L2 normalization in this function, because we can do the normalization outside,
+                # or simply a cosine similarity can do it.
+                # Note that the output node may be different if we use different loss function. For example, if the
+                # softmax is used, the output of 2-last layer is used as the embedding. While if the end2end loss is
+                # used, the output of the last layer may be a better choice. So it is impossible to specify the
+                # embedding node inside the network structure. The configuration will tell the network to output the
+                # correct activations as the embeddings.
+                _, endpoints = self.entire_network(self.pred_features, self.params, is_training, reuse_variables)
+                self.embeddings = endpoints[self.params.embedding_node]
+                if self.saver is None:
+                    self.saver = tf.train.Saver()
+            return
+
+        # global_step should be defined before loss function since some loss functions use this value to tune
+        # some internal parameters.
+        if self.global_step is None:
+            self.global_step = tf.placeholder(tf.int32, name="global_step")
+            self.params.dict["global_step"] = self.global_step
+
+        # If new loss function is added, please modify the code.
+        self.loss_type = loss_type
+        if loss_type == "softmax":
+            self.loss_network = softmax
+        elif loss_type == "asoftmax":
+            self.loss_network = asoftmax
+        elif loss_type == "additive_margin_softmax":
+            self.loss_network = additive_margin_softmax
+        elif loss_type == "additive_angular_margin_softmax":
+            self.loss_network = additive_angular_margin_softmax
+        elif loss_type == "semihard_triplet_loss":
+            self.loss_network = semihard_triplet_loss
+        elif loss_type == "angular_triplet_loss":
+            self.loss_network = angular_triplet_loss
+        elif loss_type == "generalized_angular_triplet_loss":
+            self.loss_network = generalized_angular_triplet_loss
+        elif loss_type == "level_distillation":
+            self.loss_network = level_distillation
+        else:
+            raise NotImplementedError("Not implement %s loss" % self.loss_type)
+
+        if mode == "valid":
+            tf.logging.info("Building valid network...")
+            self.valid_features = tf.placeholder(tf.float32, shape=[None, None, dim], name="valid_features")
+            self.valid_labels = tf.placeholder(tf.int32, shape=[None,], name="valid_labels")
+            with tf.name_scope("valid") as scope:
+                # We can adjust some parameters in the config when we do validation
+                # TODO: I'm not sure whether it is necssary to change the margin for the valid set.
+                # TODO: compare the performance!
+                # Change the margin for the valid set.
+                if loss_type == "softmax":
+                    pass
+                elif loss_type == "asoftmax":
+                    train_margin = self.params.asoftmax_m
+                    self.params.asoftmax_m = 1
+                elif loss_type == "additive_margin_softmax":
+                    train_margin = self.params.amsoftmax_m
+                    self.params.amsoftmax_m = 0
+                elif loss_type == "additive_angular_margin_softmax":
+                    train_margin = self.params.arcsoftmax_m
+                    self.params.arcsoftmax_m = 0
+                elif loss_type == "angular_triplet_loss":
+                    # Switch loss to e2e_valid_loss
+                    train_loss_network = self.loss_network
+                    self.loss_network = e2e_valid_loss
+                else:
+                    pass
+
+                if "aux_loss_func" in self.params.dict:
+                    # No auxiliary losses during validation.
+                    train_aux_loss_func = self.params.aux_loss_func
+                    self.params.aux_loss_func = []
+
+                features, endpoints = self.entire_network(self.valid_features, self.params, is_training, reuse_variables)
+                valid_loss, endpoints_loss = self.loss_network(features, self.valid_labels, num_speakers, self.params, is_training, reuse_variables)
+                endpoints.update(endpoints_loss)
+
+                if "aux_loss_func" in self.params.dict:
+                    self.params.aux_loss_func = train_aux_loss_func
+
+                # Change the margin back!!!
+                if loss_type == "softmax":
+                    pass
+                elif loss_type == "asoftmax":
+                    self.params.asoftmax_m = train_margin
+                elif loss_type == "additive_margin_softmax":
+                    self.params.amsoftmax_m = train_margin
+                elif loss_type == "additive_angular_margin_softmax":
+                    self.params.arcsoftmax_m = train_margin
+                elif loss_type == "angular_triplet_loss":
+                    self.loss_network = train_loss_network
+                else:
+                    pass
+
+                # We can evaluate other stuff in the valid_ops. Just add the new values to the dict.
+                # We may also need to check other values expect for the loss. Leave the task to other functions.
+                # During validation, I compute the cosine EER for the final output of the network.
+                self.embeddings = endpoints["output"]
+                self.endpoints = endpoints
+
+                self.valid_ops["raw_valid_loss"] = valid_loss
+                mean_valid_loss, mean_valid_loss_op = tf.metrics.mean(valid_loss)
+                self.valid_ops["valid_loss"] = mean_valid_loss
+                self.valid_ops["valid_loss_op"] = mean_valid_loss_op
+                valid_loss_summary = tf.summary.scalar("loss", mean_valid_loss)
+                self.valid_summary = tf.summary.merge([valid_loss_summary])
+                if self.saver is None:
+                    self.saver = tf.train.Saver(max_to_keep=self.params.keep_checkpoint_max)
+                if self.valid_summary_writer is None:
+                    self.valid_summary_writer = tf.summary.FileWriter(os.path.join(self.model, "eval"), self.sess.graph)
+            return
+
+        tf.logging.info("Building training network...")
+        self.train_features = tf.placeholder(tf.float32, shape=[None, None, dim], name="train_features")
+        self.train_labels = tf.placeholder(tf.int32, shape=[None, ], name="train_labels")
+        self.train_xvectors = tf.placeholder(tf.float32, shape=[None, num_speakers], name="train_xvectors")
+        self.learning_rate = tf.placeholder(tf.float32, name="learning_rate")
+
+        if "optimizer" not in self.params.dict:
+            # The default optimizer is sgd
+            self.params.dict["optimizer"] = "sgd"
+
+        if self.params.optimizer == "sgd":
+            if "momentum" in self.params.dict:
+                sys.exit("Using sgd as the optimizer and you should not specify the momentum.")
+            tf.logging.info("***** Using SGD as the optimizer.")
+            opt = tf.train.GradientDescentOptimizer(self.learning_rate, name="optimizer")
+        elif self.params.optimizer == "momentum":
+            # SGD with momentum
+            # It is also possible to use other optimizers, e.g. Adam.
+            tf.logging.info("***** Using Momentum as the optimizer.")
+            opt = tf.train.MomentumOptimizer(self.learning_rate, self.params.momentum, use_nesterov=self.params.use_nesterov, name="optimizer")
+        elif self.params.optimizer == "adam":
+            tf.logging.info("***** Using Adam as the optimizer.")
+            opt = tf.train.AdamOptimizer(self.learning_rate, name="optimizer")
+        else:
+            sys.exit("Optimizer %s is not supported." % self.params.optimizer)
+        self.optimizer = opt
+
+        # Use name_space here. Create multiple name_spaces if multi-gpus
+        # There is a copy in `set_trainable_variables`
+        with tf.name_scope("train") as scope:
+            features, endpoints = self.entire_network(self.train_features, self.params, is_training, reuse_variables)
+            loss, endpoints_loss = self.loss_network(features, self.train_labels, self.train_xvectors, num_speakers, self.params, is_training, reuse_variables)
+            self.endpoints = endpoints
+
+            endpoints.update(endpoints_loss)
+            regularization_loss = tf.losses.get_regularization_loss()
+            total_loss = loss + regularization_loss
+
+            # train_summary contains all the summeries we want to inspect.
+            # Get the summaries define in the network and loss function.
+            # The summeries in the network and loss function are about the network variables.
+            self.train_summary = tf.get_collection(tf.GraphKeys.SUMMARIES, scope)
+            self.train_summary.append(tf.summary.scalar("loss", loss))
+            self.train_summary.append(tf.summary.scalar("regularization_loss", regularization_loss))
+
+            # We may have other losses (i.e. penalty term in attention layer)
+            penalty_loss = tf.get_collection("PENALTY")
+            if len(penalty_loss) != 0:
+                penalty_loss = tf.reduce_sum(penalty_loss)
+                total_loss += penalty_loss
+                self.train_summary.append(tf.summary.scalar("penalty_term", penalty_loss))
+
+            self.total_loss = total_loss
+            self.train_summary.append(tf.summary.scalar("total_loss", total_loss))
+            self.train_summary.append(tf.summary.scalar("learning_rate", self.learning_rate))
+
+            # The gradient ops is inside the scope to support multi-gpus
+            if noupdate_var_list is not None:
+                old_batchnorm_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, scope)
+                batchnorm_update_ops = []
+                for op in old_batchnorm_update_ops:
+                    if not substring_in_list(op.name, noupdate_var_list):
+                        batchnorm_update_ops.append(op)
+                        tf.logging.info("[Info] Update %s" % op.name)
+                    else:
+                        tf.logging.info("[Info] Op %s will not be executed" % op.name)
+            else:
+                batchnorm_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, scope)
+
+            if noupdate_var_list is not None:
+                variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+                train_var_list = []
+
+                for v in variables:
+                    if not substring_in_list(v.name, noupdate_var_list):
+                        train_var_list.append(v)
+                        tf.logging.info("[Info] Train %s" % v.name)
+                    else:
+                        tf.logging.info("[Info] Var %s will not be updated" % v.name)
+                grads = opt.compute_gradients(total_loss, var_list=train_var_list)
+            else:
+                grads = opt.compute_gradients(total_loss)
+
+            # Once the model has been built (even for a tower), we set the flag
+            self.is_built = True
+
+        if self.params.clip_gradient:
+            grads, vars = zip(*grads)  # compute gradients of variables with respect to loss
+            grads_clip, _ = tf.clip_by_global_norm(grads, self.params.clip_gradient_norm)  # l2 norm clipping
+
+            # we follow the instruction in ge2e paper to scale the learning rate for w and b
+            # Actually, I wonder that we can just simply set a large value for w (e.g. 20) and fix it.
+            if self.loss_type == "ge2e":
+                # The parameters w and b must be the last variables in the gradients
+                grads_clip = grads_clip[:-2] + [0.01 * grad for grad in grads_clip[-2:]]
+                # Simply check the position of w and b
+                for var in vars[-2:]:
+                    assert("w" in var.name or "b" in var.name)
+            grads = zip(grads_clip, vars)
+
+        # There are some things we can do to the gradients, i.e. learning rate scaling.
+
+        # # The values and gradients are added to summeries
+        # for grad, var in grads:
+        #     if grad is not None:
+        #         self.train_summary.append(tf.summary.histogram(var.op.name + '/gradients', grad))
+        #         self.train_summary.append(tf.summary.scalar(var.op.name + '/gradients_norm', tf.norm(grad)))
+
+        self.train_summary.append(activation_summaries(endpoints))
+        for var in tf.trainable_variables():
+            self.train_summary.append(tf.summary.histogram(var.op.name, var))
+        self.train_summary = tf.summary.merge(self.train_summary)
+
+        with tf.control_dependencies(batchnorm_update_ops):
+            self.train_op = opt.apply_gradients(grads)
+
+        # We want to inspect other values during training?
+        self.train_ops["loss"] = total_loss
+        self.train_ops["raw_loss"] = loss
+
+        # The model saver
+        if self.saver is None:
+            self.saver = tf.train.Saver(max_to_keep=self.params.keep_checkpoint_max)
+
+        # The training summary writer
+        if self.summary_writer is None:
+            self.summary_writer = tf.summary.FileWriter(self.model, self.sess.graph)
         return
 
     def train(self, data, spklist, learning_rate, aux_data=None):
@@ -490,9 +725,7 @@ class Trainer(object):
                            learning rate according to the validation accuracy or anything else.
             aux_data: The auxiliary data (maybe useful in child class.)
         """
-
-
-
+        # initialize all variables
         self.sess.run(tf.global_variables_initializer())
 
         # curr_step is the real step the training at.
@@ -511,13 +744,11 @@ class Trainer(object):
                                            min_len=self.params.min_segment_len,
                                            max_len=self.params.max_segment_len,
                                            shuffle=True)
-        epoch = int(curr_step / self.params.num_steps_per_epoch)
         data_loader.start()
+
+        epoch = int(curr_step / self.params.num_steps_per_epoch)
         for step in range(curr_step % self.params.num_steps_per_epoch, self.params.num_steps_per_epoch):
             try:
-                if step % 4 == 0:
-                    # SEMI ORTHOGONA;
-                    self.sess.run(self.constrained_semi_ops)
                 if step % self.params.save_summary_steps == 0 or step % self.params.show_training_progress == 0:
                     train_ops = [self.train_ops, self.train_op]
                     if step % self.params.save_summary_steps == 0:
@@ -540,6 +771,78 @@ class Trainer(object):
                     features, labels = data_loader.fetch()
                     _ = self.sess.run(self.train_op, feed_dict={self.train_features: features,
                                                                 self.train_labels: labels,
+                                                                self.global_step: curr_step,
+                                                                self.learning_rate: learning_rate})
+
+                if step % self.params.save_checkpoints_steps == 0 and curr_step != 0:
+                    self.save(curr_step)
+                curr_step += 1
+            except DataOutOfRange:
+                tf.logging.info("Finished reading features.")
+                break
+
+        data_loader.stop()
+        self.save(curr_step)
+
+        return
+    def train_distill(self, data, spklist, learning_rate, aux_data=None):
+        """Train the model.
+
+        Args:
+            data: The training data directory.
+            spklist: The spklist is a file map speaker name to the index.
+            learning_rate: The learning rate is passed by the main program. The main program can easily tune the
+                           learning rate according to the validation accuracy or anything else.
+            aux_data: The auxiliary data (maybe useful in child class.)
+        """
+        # initialize all variables
+        self.sess.run(tf.global_variables_initializer())
+
+        # curr_step is the real step the training at.
+        curr_step = 0
+
+        # Load the model if we have
+        if os.path.isfile(os.path.join(self.model, "checkpoint")):
+            curr_step = self.load()
+
+        # The data loader
+        data_loader = KaldiDataRandomQueueDistill(data, spklist,
+                                           num_parallel=self.params.num_parallel_datasets,
+                                           max_qsize=self.params.max_queue_size,
+                                           num_speakers=self.params.num_speakers_per_batch,
+                                           num_segments=self.params.num_segments_per_speaker,
+                                           min_len=self.params.min_segment_len,
+                                           max_len=self.params.max_segment_len,
+                                           shuffle=True)
+        data_loader.start()
+
+        epoch = int(curr_step / self.params.num_steps_per_epoch)
+        for step in range(curr_step % self.params.num_steps_per_epoch, self.params.num_steps_per_epoch):
+            try:
+                if step % self.params.save_summary_steps == 0 or step % self.params.show_training_progress == 0:
+                    train_ops = [self.train_ops, self.train_op]
+                    if step % self.params.save_summary_steps == 0:
+                        train_ops.append(self.train_summary)
+                    start_time = time.time()
+                    features, labels, xvectors = data_loader.fetch()
+                    train_val = self.sess.run(train_ops, feed_dict={self.train_features: features,
+                                                                    self.train_labels: labels,
+                                                                    self.train_xvectors: xvectors,
+                                                                    self.global_step: curr_step,
+                                                                    self.learning_rate: learning_rate})
+                    end_time = time.time()
+                    tf.logging.info(
+                        "Epoch: [%2d] step: [%2d/%2d] time: %.4f s/step, raw loss: %f, total loss: %f"
+                        % (epoch, step, self.params.num_steps_per_epoch, end_time - start_time,
+                           train_val[0]["raw_loss"], train_val[0]["loss"]))
+                    if step % self.params.save_summary_steps == 0:
+                        self.summary_writer.add_summary(train_val[-1], curr_step)
+                else:
+                    # Only compute optimizer.
+                    features, labels, xvectors = data_loader.fetch()
+                    _ = self.sess.run(self.train_op, feed_dict={self.train_features: features,
+                                                                self.train_labels: labels,
+                                                                self.train_xvectors: xvectors,
                                                                 self.global_step: curr_step,
                                                                 self.learning_rate: learning_rate})
 

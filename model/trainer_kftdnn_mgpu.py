@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import time
+import random
 import numpy as np
 from model.common import l2_scaling, shape_list
 from model.ftdnn import tdnn
@@ -585,26 +586,6 @@ class Trainer(object):
             aux_data: The auxiliary data (maybe useful in child class.)
         """
 
-        def get_semi_orthogonal_for_cnn(mat):
-            M = tf.reshape(mat, [-1, int(mat.shape[3])])
-            I = tf.Variable(np.identity(M.shape[0]), dtype=tf.float32)
-            for _ in range(10):
-                P = tf.matmul(M, M, transpose_b=True)
-                alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
-                M = M - (1 / (2.0 * alpha2)) * tf.matmul(tf.subtract(P, alpha2 * I), M)
-            P = tf.matmul(M, M, transpose_b=True)
-            alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
-            M = M / alpha2
-            ans = tf.reshape(M, mat.shape)
-            return ans
-
-        graph = tf.get_default_graph()
-        constrained_semi_ops = []
-        for i in range(2, 10):
-            kernel = graph.get_tensor_by_name('tdnn/%d_semio/kernel:0' % i)
-            semi = get_semi_orthogonal_for_cnn(kernel)
-            constrained_semi_ops.append(tf.assign(kernel, semi))
-        self.constrained_semi_op = constrained_semi_ops
 
         self.sess.run(tf.global_variables_initializer())
 
@@ -628,7 +609,8 @@ class Trainer(object):
         data_loader.start()
         for step in range(curr_step % self.params.num_steps_per_epoch, self.params.num_steps_per_epoch):
             try:
-                if step % 4 == 0:
+                #if step % 4 == 0:
+                if random.randint(0,3) == 0:
                     # SEMI ORTHOGONA;
                     self.sess.run(self.constrained_semi_op)
                 if step % self.params.save_summary_steps == 0 or step % self.params.show_training_progress == 0:
@@ -1163,6 +1145,8 @@ class TrainerMGPU(Trainer):
                         train_features_slice = self.train_features[i*batch_size_per_gpu:(i+1)*batch_size_per_gpu, :, :]
                         train_labels_slice = self.train_labels[i*batch_size_per_gpu:(i+1)*batch_size_per_gpu]
                         features, endpoints = self.entire_network(train_features_slice, self.params, is_training, reuse_variables)
+
+
                         loss, endpoints_loss = self.loss_network(features, train_labels_slice, num_speakers, self.params, is_training, reuse_variables)
 
                         # Once the model has been built (even for a tower), we set the flag
@@ -1197,4 +1181,42 @@ class TrainerMGPU(Trainer):
                     grads = self.clip_gradient(grads)
                 # loss, total_loss are from the last tower, only used for inspection.
                 self.train_setup(grads, batchnorm_update_ops, loss, total_loss, endpoints)
+                with tf.name_scope('semi') as scope:
+                   #  def get_semi_orthogonal_for_cnn(mat):
+                   #      M = tf.reshape(mat, [-1, int(mat.shape[3])])
+                   #      I = tf.Variable(np.identity(M.shape[0]), dtype=tf.float32)
+                   #      for _ in range(10):
+                   #          P = tf.matmul(M, M, transpose_b=True)
+                   #          alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
+                   #          M = M - (1 / (2.0 * alpha2)) * tf.matmul(tf.subtract(P, alpha2 * I), M)
+                   #      P = tf.matmul(M, M, transpose_b=True)
+                   #      alpha2 = tf.divide(tf.trace(tf.matmul(P, P, transpose_b=True)), tf.trace(P))
+                   #      M = M / alpha2
+                   #      ans = tf.reshape(M, mat.shape)
+                   #      return ans
+                    def get_semi_orthogonal_for_cnn(mat):
+                        M = tf.reshape(mat, [-1, int(mat.shape[3])])
+                        I = tf.Variable(np.identity(M.shape[0]), dtype=tf.float32)
+                        P = tf.matmul(M, M, transpose_b=True)
+                        update_speed_ = tf.constant(0.125)
+                        trace_P = tf.trace(P)
+                        trace_P_P = tf.trace(tf.matmul(P, P, transpose_b=True))
+                        scale2 = tf.divide(trace_P_P, trace_P)
+                        ratio = trace_P_P * tf.to_float(P.shape[0]) / (trace_P * trace_P)
+                        update_speed = tf.cond(ratio < tf.constant(1.02), lambda:update_speed_ * 0.5, lambda: update_speed_ )
+                        #if tf.greater(ratio, 1.02):
+                        #    update_speed *= 0.5
+                        alpha = update_speed / scale2
+                        P = tf.subtract(P, scale2 * I)
+                        M = M - 4 * alpha * tf.matmul(P, M)
+                        ans = tf.reshape(M, mat.shape)
+                        return ans
+
+                    graph = tf.get_default_graph()#.finalize()
+                    constrained_semi_ops = []
+                    for i in range(2, 10):
+                        kernel = graph.get_tensor_by_name('tdnn/%d_semio/kernel:0' % i)
+                        semi = get_semi_orthogonal_for_cnn(kernel)
+                        constrained_semi_ops.append(tf.assign(kernel, semi, name='semiorthogonal_assign_' + str(i)))
+                    self.constrained_semi_op = constrained_semi_ops
             return
