@@ -3,190 +3,6 @@ from model.pooling import statistics_pooling, self_attention, ghost_vlad
 from model.common import prelu, shape_list
 from collections import OrderedDict
 from six.moves import range
-def tdnn_distill(features, params, is_training=None, reuse_variables=None, aux_features=None):
-    """Build a TDNN network.
-    The structure is similar to Kaldi, while it uses bn+relu rather than relu+bn.
-    And there is no dilation used, so it has more parameters than Kaldi x-vector.
-
-    Args:
-        features: A tensor with shape [batch, length, dim].
-        params: Configuration loaded from a JSON.
-        is_training: True if the network is used for training.
-        reuse_variables: True if the network has been built and enable variable reuse.
-        aux_features: Auxiliary features (e.g. linguistic features or bottleneck features).
-    :return:
-        features: The output of the last layer.
-        endpoints: An OrderedDict containing output of every components. The outputs are in the order that they add to
-                   the network. Thus it is convenient to split the network by a output name
-    """
-    # ReLU is a normal choice while other activation function is possible.
-    relu = tf.nn.relu
-    if "network_relu_type" in params.dict:
-        if params.network_relu_type == "prelu":
-            relu = prelu
-        if params.network_relu_type == "lrelu":
-            relu = tf.nn.leaky_relu
-
-    endpoints = OrderedDict()
-    with tf.variable_scope("tdnn", reuse=reuse_variables):
-        # Convert to [b, 1, l, d]
-        features = tf.expand_dims(features, 1)
-
-        # Layer 1: [-2,-1,0,1,2] --> [b, 1, l-4, 512]
-        # conv2d + batchnorm + relu
-        features = tf.layers.conv2d(features,
-                                64,
-                                (1, 5),
-                                activation=None,
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                name='tdnn1_conv')
-        endpoints["tdnn1_conv"] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn1_bn")
-        endpoints["tdnn1_bn"] = features
-        features = relu(features, name='tdnn1_relu')
-        endpoints["tdnn1_relu"] = features
-
-        # Layer 2: [-2, -1, 0, 1, 2] --> [b ,1, l-4, 512]
-        # conv2d + batchnorm + relu
-        # This is slightly different with Kaldi which use dilation convolution
-        features = tf.layers.conv2d(features,
-                                    64,
-                                    (1, 5),
-                                    activation=None,
-                                    kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                    name='tdnn2_conv')
-        endpoints["tdnn2_conv"] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn2_bn")
-        endpoints["tdnn2_bn"] = features
-        features = relu(features, name='tdnn2_relu')
-        endpoints["tdnn2_relu"] = features
-
-        # Layer 3: [-3, -2, -1, 0, 1, 2, 3] --> [b, 1, l-6, 512]
-        # conv2d + batchnorm + relu
-        # Still, use a non-dilation one
-        features = tf.layers.conv2d(features,
-                                    64,
-                                    (1, 7),
-                                    activation=None,
-                                    kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                    name='tdnn3_conv')
-        endpoints["tdnn3_conv"] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn3_bn")
-        endpoints["tdnn3_bn"] = features
-        features = relu(features, name='tdnn3_relu')
-        endpoints["tdnn3_relu"] = features
-
-        # Convert to [b, l, 512]
-        features = tf.squeeze(features, axis=1)
-        # The output of the 3-rd layer can simply be rank 3.
-        endpoints["tdnn3_relu"] = features
-
-        # Layer 4: [b, l, 512] --> [b, l, 512]
-        features = tf.layers.dense(features,
-                                   512,
-                                   activation=None,
-                                   kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                   name="tdnn4_dense")
-        endpoints["tdnn4_dense"] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn4_bn")
-        endpoints["tdnn4_bn"] = features
-        features = relu(features, name='tdnn4_relu')
-        endpoints["tdnn4_relu"] = features
-
-        # Layer 5: [b, l, x]
-        if "num_nodes_pooling_layer" not in params.dict:
-            # The default number of nodes before pooling
-            params.dict["num_nodes_pooling_layer"] = 1500
-
-        features = tf.layers.dense(features,
-                                   params.num_nodes_pooling_layer,
-                                   activation=None,
-                                   kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                   name="tdnn5_dense")
-        endpoints["tdnn5_dense"] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn5_bn")
-        endpoints["tdnn5_bn"] = features
-        features = relu(features, name='tdnn5_relu')
-        endpoints["tdnn5_relu"] = features
-
-        # Pooling layer
-        # If you add new pooling layer, modify this code.
-        # Statistics pooling
-        # [b, l, 1500] --> [b, x]
-        if params.pooling_type == "statistics_pooling":
-            features = statistics_pooling(features, aux_features, endpoints, params, is_training)
-        elif params.pooling_type == "self_attention":
-            features = self_attention(features, aux_features, endpoints, params, is_training)
-        elif params.pooling_type == "ghost_vlad":
-            features = ghost_vlad(features, aux_features, endpoints, params, is_training)
-        # elif params.pooling_type == "aux_attention":
-        #     features = aux_attention(features, aux_features, endpoints, params, is_training)
-        else:
-            raise NotImplementedError("Not implement %s pooling" % params.pooling_type)
-        endpoints['pooling'] = features
-
-        # Utterance-level network
-        # Layer 6: [b, 512]
-        features = tf.layers.dense(features,
-                                   512,
-                                   activation=None,
-                                   kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                   name='tdnn6_dense')
-        endpoints['tdnn6_dense'] = features
-        features = tf.layers.batch_normalization(features,
-                                                 momentum=params.batchnorm_momentum,
-                                                 training=is_training,
-                                                 name="tdnn6_bn")
-        endpoints["tdnn6_bn"] = features
-        features = relu(features, name='tdnn6_relu')
-        endpoints["tdnn6_relu"] = features
-
-        # Layer 7: [b, x]
-        if "num_nodes_last_layer" not in params.dict:
-            # The default number of nodes in the last layer
-            params.dict["num_nodes_last_layer"] = 64
-
-        features = tf.layers.dense(features,
-                                   params.num_nodes_last_layer,
-                                   activation=None,
-                                   kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer),
-                                   name='tdnn7_dense')
-        endpoints['tdnn7_dense'] = features
-
-        if "last_layer_no_bn" not in params.dict:
-            params.last_layer_no_bn = False
-
-        if not params.last_layer_no_bn:
-            features = tf.layers.batch_normalization(features,
-                                                     momentum=params.batchnorm_momentum,
-                                                     training=is_training,
-                                                     name="tdnn7_bn")
-            endpoints["tdnn7_bn"] = features
-
-        if "last_layer_linear" not in params.dict:
-            params.last_layer_linear = False
-
-        if not params.last_layer_linear:
-            # If the last layer is linear, no further activation is needed.
-            features = relu(features, name='tdnn7_relu')
-            endpoints["tdnn7_relu"] = features
-
-    return features, endpoints
 
 def tdnn(features, params, is_training=None, reuse_variables=None, aux_features=None):
     """Build a TDNN network.
@@ -313,10 +129,23 @@ def dilated_ftdnn(input, is_training, params):
                                           momentum=params.batchnorm_momentum,
                                           training=is_training)
         x = tf.nn.relu(x)
+        x = tf.layers.conv2d(
+            inputs=x,
+            filters=256,
+            kernel_size=kernel_size,
+            padding='same',
+            name=name+'_semio2',
+            kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer)
+        )
+        x = tf.layers.batch_normalization(x,
+                                          momentum=params.batchnorm_momentum,
+                                          training=is_training)
+        x = tf.nn.relu(x)
+
         inner = x
         x = tf.layers.conv2d(
             inputs=x,
-            filters=1024,
+            filters=1280,
             kernel_size=kernel_size,
             padding='same',
             dilation_rate=dilation_rate,
@@ -343,7 +172,7 @@ def dilated_ftdnn(input, is_training, params):
     endpoint[2] = inner
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -357,7 +186,7 @@ def dilated_ftdnn(input, is_training, params):
     endpoint[3] = inner
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -372,7 +201,7 @@ def dilated_ftdnn(input, is_training, params):
 
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -385,7 +214,7 @@ def dilated_ftdnn(input, is_training, params):
     input, _ = ftdnn_relu(tf.concat([input, endpoint[3]], -1), (1, 1), '5')
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -400,7 +229,7 @@ def dilated_ftdnn(input, is_training, params):
 
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -414,7 +243,7 @@ def dilated_ftdnn(input, is_training, params):
                        '7', dilation_rate=(1, 3))
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -430,7 +259,7 @@ def dilated_ftdnn(input, is_training, params):
 
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=1280,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -447,7 +276,7 @@ def dilated_ftdnn(input, is_training, params):
 
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=2048,
         activation=None,
         kernel_regularizer=tf.contrib.layers.l2_regularizer(params.weight_l2_regularizer)
     )
@@ -457,7 +286,7 @@ def dilated_ftdnn(input, is_training, params):
     input = tf.nn.relu(input)
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=2048,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )
@@ -467,7 +296,7 @@ def dilated_ftdnn(input, is_training, params):
     input = tf.nn.relu(input)
     input = tf.layers.dense(
         inputs=input,
-        units=1024,
+        units=2048,
         activation=None,
         kernel_regularizer=tf.contrib.layers.                                         l2_regularizer(params.                   weight_l2_regularizer)
     )

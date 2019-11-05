@@ -6,7 +6,7 @@ import time
 import random
 import numpy as np
 from model.common import l2_scaling, shape_list
-from model.ftdnn import tdnn
+from model.eftdnn import tdnn
 #from model.tdnn import tdnn, tdnns
 from model.loss import softmax
 from model.loss import asoftmax, additive_margin_softmax, additive_angular_margin_softmax
@@ -1218,5 +1218,8 @@ class TrainerMGPU(Trainer):
                         kernel = graph.get_tensor_by_name('tdnn/%d_semio/kernel:0' % i)
                         semi = get_semi_orthogonal_for_cnn(kernel)
                         constrained_semi_ops.append(tf.assign(kernel, semi, name='semiorthogonal_assign_' + str(i)))
+                        kernel2 = graph.get_tensor_by_name('tdnn/%d_semio2/kernel:0' % i)
+                        semi2 = get_semi_orthogonal_for_cnn(kernel2)
+                        constrained_semi_ops.append(tf.assign(kernel2, semi2,name='semiorthogonal_assign2_' + str(i)))
                     self.constrained_semi_op = constrained_semi_ops
             return
