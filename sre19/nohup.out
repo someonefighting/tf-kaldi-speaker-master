@@ -1,0 +1,10 @@
+steps/make_mfcc.sh --write-utt2num-frames true --mfcc-config conf/mfcc.conf --nj 90 --cmd queue.pl --mem 4G data/sre exp/make_mfcc /liry_tf/tf-kaldi-speaker/egs/voxceleb/sre19_demo/mfcc
+utils/validate_data_dir.sh: Successfully validated data-directory data/sre
+steps/make_mfcc.sh: [info]: no segments file exists: assuming wav.scp indexed by utterance.
+queue.pl: Error submitting jobs to queue (return status was 32512)
+queue log file is exp/make_mfcc/q/make_mfcc_sre.log, command was qsub -v PATH -cwd -S /bin/bash -j y -l arch=*64* -o exp/make_mfcc/q/make_mfcc_sre.log  -l mem_free=4G,ram_free=4G  -t 1:90 /liry_tf/tf-kaldi-speaker/egs/voxceleb/sre19_demo/exp/make_mfcc/q/make_mfcc_sre.sh >>exp/make_mfcc/q/make_mfcc_sre.log 2>&1
+Output of qsub was: sh: 1: qsub: not found
+
+steps/make_mfcc.sh --write-utt2num-frames true --mfcc-config conf/mfcc.conf --nj 90 --cmd run.pl data/sre exp/make_mfcc /liry_tf/tf-kaldi-speaker/egs/voxceleb/sre19_demo/mfcc
+utils/validate_data_dir.sh: Successfully validated data-directory data/sre
+steps/make_mfcc.sh: [info]: no segments file exists: assuming wav.scp indexed by utterance.
