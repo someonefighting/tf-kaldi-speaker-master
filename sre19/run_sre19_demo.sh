@@ -26,15 +26,16 @@ sre18_dev_trials=data/sre18_dev_test/trials
 sre18_eval_trials=data/sre18_eval_test/trials
 sre19_eval_trials=data/sre19_eval_test/trials
 
-nnet_dir=exp/xvector_nnet_1a
+nnetdir=exp/eftdnn
 
 voxceleb1_root=/liry_tf/Data/voxceleb1
 voxceleb2_root=/liry_tf/Data/voxceleb2
 
 data_root=/liry_tf/Data/SRE18/
 sre19_root=/liry_tf/Data/SRE19/
+data=data
 
-stage=3
+stage=7
 train_stage=-1
 nj=90
 
@@ -339,157 +340,157 @@ if [ $stage -le 6 ]; then
   # Split the validation set
   num_heldout_spks=64
   num_heldout_utts_per_spk=20
-  mkdir -p $data/voxceleb_train_combined_no_sil/train2/ $data/voxceleb_train_combined_no_sil/valid2/
+  mkdir -p $data/swbd_sre_voxceleb_combined_no_sil/train2/ $data/swbd_sre_voxceleb_combined_no_sil/valid2/
 
-  sed 's/-noise//' $data/voxceleb_train_combined_no_sil/utt2spk | sed 's/-music//' | sed 's/-babble//' | sed 's/-reverb//' |\
-    paste -d ' ' $data/voxceleb_train_combined_no_sil/utt2spk - | cut -d ' ' -f 1,3 > $data/voxceleb_train_combined_no_sil/utt2uniq
+  sed 's/-noise//' $data/swbd_sre_voxceleb_combined_no_sil/utt2spk | sed 's/-music//' | sed 's/-babble//' | sed 's/-reverb//' |\
+    paste -d ' ' $data/swbd_sre_voxceleb_combined_no_sil/utt2spk - | cut -d ' ' -f 1,3 > $data/swbd_sre_voxceleb_combined_no_sil/utt2uniq
 
-  utils/utt2spk_to_spk2utt.pl $data/voxceleb_train_combined_no_sil/utt2uniq > $data/voxceleb_train_combined_no_sil/uniq2utt
-  cat $data/voxceleb_train_combined_no_sil/utt2spk | utils/apply_map.pl -f 1 $data/voxceleb_train_combined_no_sil/utt2uniq |\
-    sort | uniq > $data/voxceleb_train_combined_no_sil/utt2spk.uniq
+  utils/utt2spk_to_spk2utt.pl $data/swbd_sre_voxceleb_combined_no_sil/utt2uniq > $data/swbd_sre_voxceleb_combined_no_sil/uniq2utt
+  cat $data/swbd_sre_voxceleb_combined_no_sil/utt2spk | utils/apply_map.pl -f 1 $data/swbd_sre_voxceleb_combined_no_sil/utt2uniq |\
+    sort | uniq > $data/swbd_sre_voxceleb_combined_no_sil/utt2spk.uniq
 
-  utils/utt2spk_to_spk2utt.pl $data/voxceleb_train_combined_no_sil/utt2spk.uniq > $data/voxceleb_train_combined_no_sil/spk2utt.uniq
-  python $TF_KALDI_ROOT/misc/tools/sample_validset_spk2utt.py $num_heldout_spks $num_heldout_utts_per_spk $data/voxceleb_train_combined_no_sil/spk2utt.uniq > $data/voxceleb_train_combined_no_sil/valid2/spk2utt.uniq
+  utils/utt2spk_to_spk2utt.pl $data/swbd_sre_voxceleb_combined_no_sil/utt2spk.uniq > $data/swbd_sre_voxceleb_combined_no_sil/spk2utt.uniq
+  python $TF_KALDI_ROOT/misc/tools/sample_validset_spk2utt.py $num_heldout_spks $num_heldout_utts_per_spk $data/swbd_sre_voxceleb_combined_no_sil/spk2utt.uniq > $data/swbd_sre_voxceleb_combined_no_sil/valid2/spk2utt.uniq
 
-  cat $data/voxceleb_train_combined_no_sil/valid2/spk2utt.uniq | utils/apply_map.pl -f 2- $data/voxceleb_train_combined_no_sil/uniq2utt > $data/voxceleb_train_combined_no_sil/valid2/spk2utt
-  utils/spk2utt_to_utt2spk.pl $data/voxceleb_train_combined_no_sil/valid2/spk2utt > $data/voxceleb_train_combined_no_sil/valid2/utt2spk
-  cp $data/voxceleb_train_combined_no_sil/feats.scp $data/voxceleb_train_combined_no_sil/valid2
-  utils/filter_scp.pl $data/voxceleb_train_combined_no_sil/valid2/utt2spk $data/voxceleb_train_combined_no_sil/utt2num_frames > $data/voxceleb_train_combined_no_sil/valid2/utt2num_frames
-  utils/fix_data_dir.sh $data/voxceleb_train_combined_no_sil/valid2
+  cat $data/swbd_sre_voxceleb_combined_no_sil/valid2/spk2utt.uniq | utils/apply_map.pl -f 2- $data/swbd_sre_voxceleb_combined_no_sil/uniq2utt > $data/swbd_sre_voxceleb_combined_no_sil/valid2/spk2utt
+  utils/spk2utt_to_utt2spk.pl $data/swbd_sre_voxceleb_combined_no_sil/valid2/spk2utt > $data/swbd_sre_voxceleb_combined_no_sil/valid2/utt2spk
+  cp $data/swbd_sre_voxceleb_combined_no_sil/feats.scp $data/swbd_sre_voxceleb_combined_no_sil/valid2
+  utils/filter_scp.pl $data/swbd_sre_voxceleb_combined_no_sil/valid2/utt2spk $data/swbd_sre_voxceleb_combined_no_sil/utt2num_frames > $data/swbd_sre_voxceleb_combined_no_sil/valid2/utt2num_frames
+  utils/fix_data_dir.sh $data/swbd_sre_voxceleb_combined_no_sil/valid2
 
-  utils/filter_scp.pl --exclude $data/voxceleb_train_combined_no_sil/valid2/utt2spk $data/voxceleb_train_combined_no_sil/utt2spk  > $data/voxceleb_train_combined_no_sil/train2/utt2spk
-  utils/utt2spk_to_spk2utt.pl $data/voxceleb_train_combined_no_sil/train2/utt2spk > $data/voxceleb_train_combined_no_sil/train2/spk2utt
-  cp $data/voxceleb_train_combined_no_sil/feats.scp $data/voxceleb_train_combined_no_sil/train2
-  utils/filter_scp.pl $data/voxceleb_train_combined_no_sil/train2/utt2spk $data/voxceleb_train_combined_no_sil/utt2num_frames > $data/voxceleb_train_combined_no_sil/train2/utt2num_frames
-  utils/fix_data_dir.sh $data/voxceleb_train_combined_no_sil/train2
+  utils/filter_scp.pl --exclude $data/swbd_sre_voxceleb_combined_no_sil/valid2/utt2spk $data/swbd_sre_voxceleb_combined_no_sil/utt2spk  > $data/swbd_sre_voxceleb_combined_no_sil/train2/utt2spk
+  utils/utt2spk_to_spk2utt.pl $data/swbd_sre_voxceleb_combined_no_sil/train2/utt2spk > $data/swbd_sre_voxceleb_combined_no_sil/train2/spk2utt
+  cp $data/swbd_sre_voxceleb_combined_no_sil/feats.scp $data/swbd_sre_voxceleb_combined_no_sil/train2
+  utils/filter_scp.pl $data/swbd_sre_voxceleb_combined_no_sil/train2/utt2spk $data/swbd_sre_voxceleb_combined_no_sil/utt2num_frames > $data/swbd_sre_voxceleb_combined_no_sil/train2/utt2num_frames
+  utils/fix_data_dir.sh $data/swbd_sre_voxceleb_combined_no_sil/train2
 
-  awk -v id=0 '{print $1, id++}' $data/voxceleb_train_combined_no_sil/train2/spk2utt > $data/voxceleb_train_combined_no_sil/train2/spklist
+  awk -v id=0 '{print $1, id++}' $data/swbd_sre_voxceleb_combined_no_sil/train2/spk2utt > $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist
 fi
 
 if [ $stage -le 7 ]; then
 ## Training a softmax network
 #nnetdir=$exp/xvector_nnet_tdnn_softmax_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_softmax_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #
 ## ASoftmax
 #nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m1_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_asoftmax_m1_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m2_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_asoftmax_m2_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 # nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m4_linear_bn_1e-2
 # nnet/run_train_nnet_ftdnn_mgpu.sh --cmd "$cuda_cmd" --env tf_2_gpu --continue-training true nnet_conf/ftdnn2_asoftmax_m4_linear_bn_1e-2.json \
-#     $data/voxceleb_train_combined_no_sil/train2 $data/voxceleb_train_combined_no_sil/train2/spklist \
-#     $data/voxceleb_train_combined_no_sil/valid2 $data/voxceleb_train_combined_no_sil/train2/spklist \
+#     $data/swbd_sre_voxceleb_combined_no_sil/train2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
+#     $data/swbd_sre_voxceleb_combined_no_sil/valid2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
 #     $nnetdir
 #
 #
 ## Additive margin softmax
 nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.15_linear_bn_1e-2
-nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.15_linear_bn_1e-2.json \
-    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+nnet/run_train_nnet_eftdnn.sh --cmd "$cuda_cmd" --env tf_2_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.15_linear_bn_1e-2.json \
+    $data/swbd_sre_voxceleb_combined_no_sil/train2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
+    $data/swbd_sre_voxceleb_combined_no_sil/valid2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
     $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_asoftmax_m4_linear_bn_1e-2
 #nnet/run_train_nnet_eftdnn.sh --cmd "$cuda_cmd" --env tf_2_gpu --continue-training false nnet_conf/ftdnn2_asoftmax_m4_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train2 $data/voxceleb_train_combined_no_sil/train2/spklist \
-#    $data/voxceleb_train_combined_no_sil/valid2 $data/voxceleb_train_combined_no_sil/train2/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/valid2 $data/swbd_sre_voxceleb_combined_no_sil/train2/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.25_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.25_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.30_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.30_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.35_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.35_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 ## ArcSoftmax
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.15_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.15_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.20_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.20_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.25_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.25_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.30_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.30_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.35_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.35_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 #nnetdir=$exp/xvector_nnet_tdnn_arcsoftmax_m0.40_linear_bn_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_arcsoftmax_m0.40_linear_bn_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 
 
 ## Add "Ring Loss"
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_1e-2_r0.01
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_1e-2_r0.01.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_fn30_1e-2
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_fn30_1e-2.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 #
 ## Add "MHE"
 #nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_1e-2_mhe0.01
 #nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training true nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_1e-2_mhe0.01.json \
-#    $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#    $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#    $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #    $nnetdir
 
 
 # Add attention
 # nnetdir=$exp/xvector_nnet_tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att
 # nnet/run_train_nnet.sh --cmd "$cuda_cmd" --env tf_gpu --continue-training false nnet_conf/tdnn_amsoftmax_m0.20_linear_bn_1e-2_tdnn4_att.json \
-#     $data/voxceleb_train_combined_no_sil/train $data/voxceleb_train_combined_no_sil/train/spklist \
-#     $data/voxceleb_train_combined_no_sil/softmax_valid $data/voxceleb_train_combined_no_sil/train/spklist \
+#     $data/swbd_sre_voxceleb_combined_no_sil/train $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
+#     $data/swbd_sre_voxceleb_combined_no_sil/softmax_valid $data/swbd_sre_voxceleb_combined_no_sil/train/spklist \
 #     $nnetdir
 
 
