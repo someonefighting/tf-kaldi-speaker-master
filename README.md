@@ -148,9 +148,7 @@ After downloading the code, simply run:
 
 * Contact:
 
-    Website: <http://yiliu.org.cn>
-
-    E-mail: liu-yi15 (at) mails (dot) tsinghua (dot) edu (dot) cn
+    E-mail: liry17 (at) mails (dot) tsinghua (dot) edu (dot) cn
 
 
 # Related papers
