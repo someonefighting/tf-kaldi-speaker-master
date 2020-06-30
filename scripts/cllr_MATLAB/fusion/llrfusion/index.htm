@@ -1,0 +1,387 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./index_files/filelist.xml">
+<link rel=Edit-Time-Data href="./index_files/editdata.mso">
+<link rel=OLE-Object-Data href="./index_files/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>Linear logistic regression fusion</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Brummer</o:Author>
+  <o:LastAuthor>Niko Brummer</o:LastAuthor>
+  <o:Revision>17</o:Revision>
+  <o:TotalTime>167</o:TotalTime>
+  <o:Created>2005-07-13T07:47:00Z</o:Created>
+  <o:LastSaved>2005-07-18T21:05:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>641</o:Words>
+  <o:Characters>3658</o:Characters>
+  <o:Company>Spescom Datavoice (PTY) LTD</o:Company>
+  <o:Lines>30</o:Lines>
+  <o:Paragraphs>7</o:Paragraphs>
+  <o:CharactersWithSpaces>4492</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0mm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:301039337;
+	mso-list-type:hybrid;
+	mso-list-template-ids:198062660 -255962822 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:72.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+ol
+	{margin-bottom:0mm;}
+ul
+	{margin-bottom:0mm;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1031"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:36.0pt'>
+
+<div class=Section1>
+
+<h1>Linear Logistic Regression Fusion</h1>
+
+<p class=MsoNormal>This is a simultaneous <a href="../index.htm">fusion</a> and
+<a href="../../cllr/calibration/index.htm">calibration</a>. The scores of
+multiple sub-systems are fused together, primarily to improve discriminative
+ability, but in such a way as to encourage good calibration of the output
+scores. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Do keep in mind that this fusion is linear, it has no
+saturation effect. You may want to post-calibrate it with for example <a
+href="../../cllr/calibration/s_cal/index.htm">S-Cal</a>.</p>
+
+<h2>Linear fusion</h2>
+
+<p class=MsoNormal>Given <i>N</i> speaker detectors which output the scores (<i>s<sub>1j&nbsp;</sub>,s<sub>2j&nbsp;</sub>,…,s<sub>Nj&nbsp;</sub></i>)<i>
+</i>for a detection trial<i> j,</i> a <i>linear fusion</i> of these scores is:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><i>f<sub>j</sub> = </i><i><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>a</span></span><sub>0</sub>
++ </i><i><span style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>a</span></span><sub>1</sub>s<sub>1j</sub>
++ </i><i><span style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>a</span></span><sub>2</sub>s<sub>2j</sub>
++ … + </i><i><span style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>a</span></span><sub>N</sub>s<sub>Nj<o:p></o:p></sub></i></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The constant <i><span style='font-family:Symbol;mso-ascii-font-family:
+"Times New Roman";mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;
+mso-symbol-font-family:Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:
+Symbol'>a</span></span><sub>0</sub></i> does not contribute to the
+discriminative ability of the fusion, but it can improve the <i>calibration</i>
+of the fused score. This constant is included here, because when these weights
+are trained via logistic regression, the fused score tends to be a <i>well-calibrated
+detection log-likelihood-ratio</i>. </p>
+
+<h2>Training the fusion</h2>
+
+<p class=MsoNormal>To <i>train</i> the fusion parameters, we need a set of
+supervised training scores, and an objective defined in terms of these scores
+and the fusion weights. Training consists of optimizing this objective. </p>
+
+<h3>Training scores</h3>
+
+<p class=MsoNormal>We need scores for all component systems as calculated on a
+set of supervised detection trials. Let:</p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span></p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>[<i>s<sub>ij</sub></i>] be an <i>N</i>
+by <i>K </i>matrix of scores that each of the <i>N</i> component systems
+calculated for each of <i>K</i> target trials. </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>[<i>r<sub>ij</sub></i>] be an <i>N</i>
+by <i>L </i>matrix of scores that each of the <i>N</i> component systems
+calculated for each of <i>L</i> non-target trials. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The selection of these training trials is important and is
+subject to many considerations.</p>
+
+<h3>Logistic regression objective</h3>
+
+<p class=MsoNormal>We use a logistic regression objective that is normalized
+with respect to the proportion of target trials to non-target trials (<i>K:L</i>),
+but which is then weighted with respect to a given synthetic prior, <i>P</i>.
+The objective is stated in terms of a <i>cost, </i>which must be <i>minimized</i>:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-indent:36.0pt'><span style='mso-text-raise:-15.0pt'><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:268.8pt;
+ height:34.8pt' o:ole="">
+ <v:imagedata src="./index_files/image001.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=358 height=47
+src="./index_files/image002.gif" v:shapes="_x0000_i1025"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1025"
+  DrawAspect="Content" ObjectID="_1183233125">
+ </o:OLEObject>
+</xml><![endif]--></span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>where the fused target and non-target scores are
+respectively: </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+style='mso-text-raise:-14.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1026"
+ type="#_x0000_t75" style='width:178.8pt;height:34.2pt' o:ole="">
+ <v:imagedata src="./index_files/image003.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=238 height=46
+src="./index_files/image004.gif" v:shapes="_x0000_i1026"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1026"
+  DrawAspect="Content" ObjectID="_1183233126">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>and where</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+style='mso-text-raise:-12.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1027"
+ type="#_x0000_t75" style='width:88.8pt;height:31.2pt' o:ole="">
+ <v:imagedata src="./index_files/image005.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=118 height=41
+src="./index_files/image006.gif" v:shapes="_x0000_i1027"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1027"
+  DrawAspect="Content" ObjectID="_1183233127">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>To see that minimizing the objective <i>C<sub>wlr</sub></i> tends
+to give good <i>calibration</i> of the fused scores, note that if we set the
+prior <i>P&nbsp;</i>=&nbsp;0.5, then <i>C<sub>wlr</sub></i><sub> </sub>is just <i><a
+href="../../cllr/index.htm">Cllr</a></i> (up to a scaling constant). In
+practice, changing the value of <i>P</i> has a small effect. The default of 0.5
+is a good choice for general application, but to optimize for <i>C<sub>DET</sub></i>
+in the NIST evaluation, the prior may be set to 0.0917 . (This value may be
+calculated with <a href="../../matlab/utils/effective_prior.m">effective_prior.m</a>.)</p>
+
+<h3>Optimization</h3>
+
+<p class=MsoNormal>The optimization objective <i>C<sub>wlr</sub></i> is convex
+and therefore has a unique global minimum. Many methods can be used to find
+this minimum. We used a conjugate gradient algorithm, the details of which have
+been nicely worked out by Tom Minka at <a
+href="http://www.stat.cmu.edu/~minka/papers/logreg/">http://www.stat.cmu.edu/~minka/papers/logreg/</a>.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Training Software</h2>
+
+<p class=MsoNormal>To train the weights, use <a
+href="../../matlab/fusion/train_llr_fusion.m">train_llr_fusion.m</a> in the
+package <a href="../../matlab/FoCal.zip">FoCal.zip</a>. See the help comments
+in the code for usage instructions.</p>
+
+<h2>Does it work?</h2>
+
+<p class=MsoNormal>The success of the fusion depends on the available component
+systems and on the selection of the training scores. To test whether this
+fusion works, test it on set of test scores, which is independent of the
+training scores. On the test data, to:</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>judge
+discrimination:</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>plot DET-curves</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>calculate ‘minimum C<sub>DET</sub>’ (if optimizing for
+the NIST SRE)</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>calculate <a href="../../matlab/cllr/min_cllr.m">min_cllr.m</a>
+(if optimizing for general applications)</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>judge
+<a href="../../cllr/calibration/index.htm">calibration</a>:</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>plot <a href="../../matlab/cllr/ape_plot.m">APE-curves</a></p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>calculate <a href="../../matlab/cllr/cllr_cal.m">cllr_cal.m</a></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><i><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></i></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><a
+href="..\..\index.htm">../../ back to FoCal Toolkit Home.</a><o:p></o:p></span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>

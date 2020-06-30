@@ -1,0 +1,362 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./index_files/filelist.xml">
+<title>How to evaluate the goodness of detection log-likelihood-ratios</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Brummer</o:Author>
+  <o:LastAuthor>Niko Brummer</o:LastAuthor>
+  <o:Revision>9</o:Revision>
+  <o:TotalTime>335</o:TotalTime>
+  <o:Created>2005-07-18T14:44:00Z</o:Created>
+  <o:LastSaved>2005-07-18T20:09:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>867</o:Words>
+  <o:Characters>4947</o:Characters>
+  <o:Company>Spescom Datavoice (PTY) LTD</o:Company>
+  <o:Lines>41</o:Lines>
+  <o:Paragraphs>9</o:Paragraphs>
+  <o:CharactersWithSpaces>6075</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0mm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{margin-top:0mm;
+	margin-right:0mm;
+	margin-bottom:0mm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoBodyTextIndent2, li.MsoBodyTextIndent2, div.MsoBodyTextIndent2
+	{margin-top:0mm;
+	margin-right:0mm;
+	margin-bottom:0mm;
+	margin-left:72.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:1002897710;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-20396840 -255962822 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:1460684138;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1859492552 -255962822 67698691 -255962822 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l1:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:72.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l1:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:108.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0mm;}
+ul
+	{margin-bottom:0mm;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:36.0pt'>
+
+<div class=Section1>
+
+<h1 align=center style='text-align:center'><i><span style='font-size:36.0pt;
+mso-bidi-font-size:16.0pt'>C<sub>llr</sub><o:p></o:p></span></i></h1>
+
+<h1>How to evaluate the goodness of detection log-likelihood-ratios</h1>
+
+<h2>Detection</h2>
+
+<p class=MsoNormal>We are interested in evaluating the performance of pattern
+recognition machines that are designed to recognize, in some kind of complex
+input such as speech, two different classes of input. In some contexts these
+two classes are known as <i>target </i><span style="mso-spacerun:
+yes"> </span>and <i>non-target</i>, while the recognizer is known as a <i>detector</i>.
+</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The material here is primarily aimed at the evaluation of
+automatic <i>speaker</i> detection, but in principle it is applicable to any
+other binary pattern recognition problem. In what follows, we shall use
+terminology that is well-known in the speaker detection literature.</p>
+
+<h2>Detection log-likelihood-ratios<a name="det_llr"></a></h2>
+
+<p class=MsoNormal>A <i>hard</i> <i>detector</i> is one that outputs a hard
+decision as a function of the input. Most often this would be a binary <i>accept/reject</i>
+decision. It is well-known how to evaluate the goodness of such decisions, via
+for example <i>error-rates</i> or (more generally) <i>detection cost functions</i>.
+But detectors designed to produce hard outputs are necessarily <i>application-dependent</i>,
+and the evaluation of these detectors, via detection cost function, is also
+application-dependent. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>In contrast, here we are interested in <i>soft detectors</i>
+that output a real number, in the form of a log-likelihood-ratio. This is the <i>logarithm</i>
+of the <i>ratio</i> between the <i>likelihood that the target produced the
+speech</i> input, and the <i>likelihood that a non-target produced the input</i>.
+This form of output is <i>application-independent</i> in the sense that this
+likelihood-ratio output can theoretically be used to make optimal (Bayes) decisions
+for any given target prior and any costs associated with making erroneous
+decisions.</p>
+
+<h2>Evaluation of detection likelihood-ratios</h2>
+
+<p class=MsoNormal>This page forms part of a proposal of how to evaluate the
+goodness of detection likelihood-ratios. For a full motivation and a
+description of how to do this, refer to the following paper (draft copies may
+be requested from the first author):</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>Niko Brummer and Johan du Preez,
+“Application-Independent Evaluation of Speaker Detection”, to be published, <i>Computer
+Speech and Language</i>, 2005.</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>We make available some <a href="..\matlab\FoCal.zip">MATLAB
+code</a> that is associated with this paper. The purpose of this code is so
+that developers of soft detectors may evaluate the quality of the
+log-likelihood-ratio outputs of their detection systems, to measure their own
+progress in this regard.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Moreover, to help researchers to get started, we also make
+available some <a href="calibration\index.htm">tools to help researchers to
+calibrate</a> the scores of theirs existing detection systems to be
+log-likelihood-ratios. </p>
+
+<h2>Requirement</h2>
+
+<p class=MsoNormal>You need a <i>supervised evaluation database</i>, with a
+large number of <i>target trials</i> and a large number of <i>non-target</i>
+trials. Run the detector under evaluation on both sets of trials, to produce
+two sets of outputs: the <i>target log-likelihood-ratios</i> and the <i>non-target
+log-likelihood-ratios</i>. These are the only inputs needed as input to the
+software below:</p>
+
+<h2>Software</h2>
+
+<p class=MsoNormal>All of the software here can be downloaded as <a
+href="..\matlab\FoCal.zip">FoCal.zip</a>. Below we give brief descriptions of
+some of the MATLAB functions available in this package. You will have to
+download the whole package, because the links below point only to the top level
+functions. Some more documentation is available in the code:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+basic tool of evaluation is a cost function which we call <i>C<sub>llr</sub></i><sub>&nbsp;</sub>.
+Given the above sets of log-likelihood-ratio outputs, calculation of<span
+style="mso-spacerun: yes">  </span><i>C<sub>llr</sub></i> is trivial. See the
+above paper, or use the following code: <a href="..\matlab\cllr\cllr.m">cllr.m</a>.
+This gives a scalar measure of goodness of the total detection system.</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>But
+to analyze system performance, we can view the detector as having two
+consecutive stages: </p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l1 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>The first stage produces a detection <i>score</i>. The
+only requirement of the score is that more positive scores favour the target
+hypothesis and more negative scores favour the non-target hypothesis.</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l1 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>The second stage maps these scores to <i>calibrated</i>
+log-likelihood-ratios. </p>
+
+<p class=MsoBodyTextIndent>This analysis applies even if the detector does not
+explicitly have such stages. If you do not have explicit detection scores, you
+can use the log-likelihood-ratios as scores (this is what the <i>APE</i>-plot
+below does). The scalar measure of goodness of the score is given by <a
+href="..\matlab\cllr\min_cllr.m">min_cllr.m</a>. </p>
+
+<p class=MsoBodyTextIndent style='margin-left:38.5pt;text-indent:-18.0pt;
+mso-list:l1 level1 lfo2;tab-stops:list 38.5pt'><![if !supportLists]><span
+style='font-family:Symbol'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>If you are interested only in how good your
+log-likelihood-ratio <i>calibration</i> is, the above two measures can be
+compared (simply subtracted). This is conveniently made available via <a
+href="..\matlab\cllr\cllr_cal.m">cllr_cal.m</a>.</p>
+
+<p class=MsoBodyTextIndent style='margin-left:38.5pt;text-indent:-18.0pt;
+mso-list:l1 level1 lfo2;tab-stops:list 38.5pt'><![if !supportLists]><span
+style='font-family:Symbol'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Finally, if you find these scalar measures of goodness
+prosaic, here is an attractive graphical representation called the (<i>Applied-Probability-of-Error</i>)
+<i>APE-plot.</i> The main purpose of this representation is to demonstrate the
+beautiful relationship between the traditional cost/error-based detector
+evaluation and evaluation by <i>C<sub>llr</sub></i>&nbsp;. (<i>C<sub>llr</sub></i>
+can be interpreted as a total error-rate across a wide range of different
+applications, but at the same time has an information-theoretic interpretation
+in terms of Shannon’s entropy.) The routine <a href="..\matlab\cllr\ape_plot.m">ape_plot.m</a>
+generates <i>APE</i>-plots for one or more detectors under evaluation.</p>
+
+<h3><span lang=EN-GB style='mso-ansi-language:EN-GB'>MATLAB version<o:p></o:p></span></h3>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>This code
+was developed in MATLAB version 5.2: <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo4;
+tab-stops:list 38.5pt'><![if !supportLists]><span lang=EN-GB style='font-family:
+Symbol;mso-ansi-language:EN-GB'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span lang=EN-GB style='mso-ansi-language:EN-GB'>If you
+have an older version of MATLAB, you may have trouble with the <i>cell arrays</i>
+‘{{},{}}’ used in ape_plot.m. But it would be easy to modify this function to
+use normal MATLAB matrices as input. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo4;
+tab-stops:list 38.5pt'><![if !supportLists]><span lang=EN-GB style='font-family:
+Symbol;mso-ansi-language:EN-GB'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span lang=EN-GB style='mso-ansi-language:EN-GB'>The
+guys at ATVS have pointed out that in MATLAB 6.5, in the function <a
+href="..\matlab\cllr\opt_loglr.m">opt_loglr.m</a>, at line 133, they had to
+make the following change:<o:p></o:p></span></p>
+
+<p class=MsoBodyTextIndent2><span lang=EN-GB style='mso-ansi-language:EN-GB'>We
+had an error due to the fact that 'state' is a struct, not a string.&nbsp;So, I
+had to replace<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:36.0pt'><span
+lang=EN-GB style='font-size:10.0pt;font-family:Arial;mso-ansi-language:EN-GB'>eval(['warning
+',state]); % restore previous warning state</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'>&nbsp;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:72.0pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:Arial;mso-ansi-language:EN-GB'>with</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:108.0pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:Arial;mso-ansi-language:EN-GB'>eval(['warning
+',state.state]); % restore previous warning state<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:108.0pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:Arial;mso-ansi-language:EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><a
+href="..\index.htm">../ back to FoCal Toolkit Home.</a><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+function llr = lda_llr(R,means,scores);
+scores = R*scores;
+t = size(scores,2);
+[m,n]=size(means);
+ll = zeros(n,t);
+llr = zeros(n-1,t);
+for i=1:n;
+   s = scores - means(:,i)*ones(1,t);
+   ll(i,:) = - 0.5*sum(s.^2);   
+end;
+for i=1:n-1;
+   llr(i,:) = ll(i,:)-ll(n,:);   
+end;

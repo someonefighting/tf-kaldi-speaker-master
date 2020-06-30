@@ -1,0 +1,233 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./index_files/filelist.xml">
+<title>MATLAB code for the evaluation of speaker detection
+log-likelihood-ratios is available at:</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Brummer</o:Author>
+  <o:LastAuthor>Brummer</o:LastAuthor>
+  <o:Revision>20</o:Revision>
+  <o:TotalTime>145</o:TotalTime>
+  <o:Created>2005-06-15T14:44:00Z</o:Created>
+  <o:LastSaved>2005-07-18T15:15:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>204</o:Words>
+  <o:Characters>1163</o:Characters>
+  <o:Company>Spescom Datavoice (PTY) LTD</o:Company>
+  <o:Lines>9</o:Lines>
+  <o:Paragraphs>2</o:Paragraphs>
+  <o:CharactersWithSpaces>1428</o:CharactersWithSpaces>
+  <o:Version>9.6926</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+span.pron
+	{mso-style-name:pron;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:1294944727;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1025616230 1407977928 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-start-at:26;
+	mso-level-number-format:bullet;
+	mso-level-text:-;
+	mso-level-tab-stop:36.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+@list l1
+	{mso-list-id:1713068881;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-418855590 -255962822 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1027"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-GB link=blue vlink=purple style='tab-interval:36.0pt'>
+
+<div class=Section1>
+
+<h1 align=center style='text-align:center'><span lang=EN-US style='font-size:
+28.0pt;mso-bidi-font-size:16.0pt;color:blue;mso-ansi-language:EN-US'>FoCal</span><span
+lang=EN-US style='font-size:28.0pt;mso-bidi-font-size:16.0pt;mso-ansi-language:
+EN-US'> <o:p></o:p></span></h1>
+
+<h1><span lang=EN-US style='mso-ansi-language:EN-US'>Tools for <i><span
+style='color:blue'>F</span>usi<span style='color:blue'>o</span>n</i> and <i><span
+style='color:blue'>Cal</span>ibration</i> of automatic speaker detection
+systems<o:p></o:p></span></h1>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span lang=EN-US
+style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'>This
+toolkit makes available some MATLAB code that may be useful for researchers in
+the field of <i>automatic speaker detection</i>, particularly those that
+participate in the yearly <a
+href="http://www.nist.gov/speech/tests/spk/index.htm">NIST Speaker Recognition
+Evaluations</a>. <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'>These tools
+may be applicable to many other fields of pattern recognition and machine
+learning, but prospective users are advised that the current documentation is
+interspersed with jargon that is specific to speaker detection.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span lang=EN-US
+style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<h2><span lang=EN-US style='mso-ansi-language:EN-US'>Download<o:p></o:p></span></h2>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'>All of the
+code (MATLAB .m-files) is available for download as <a href="matlab/FoCal.zip">FoCal.zip</a>
+(21 kB</span><span class=pron>).</span><span lang=EN-US style='mso-ansi-language:
+EN-US'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<h2><span lang=EN-US style='mso-ansi-language:EN-US'>Documentation<o:p></o:p></span></h2>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'>The
+functions of the toolkit are introduced in the below-referenced web pages. (The
+code contains further help in the form of comments.) <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span lang=EN-US
+style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span lang=EN-US
+style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span lang=EN-US style='font-family:
+Symbol;mso-ansi-language:EN-US'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span lang=EN-US style='mso-ansi-language:EN-US'><a
+href="cllr/index.htm">Tools for <i>evaluation</i></a> <i>of the goodness</i> of
+speaker detection log-likelihood-ratios.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span lang=EN-US
+style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span lang=EN-US style='font-family:
+Symbol;mso-ansi-language:EN-US'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span lang=EN-US style='mso-ansi-language:EN-US'><a
+href="cllr/calibration/index.htm">Tools for calibration</a> (i.e. converting
+scores to log-likelihood-ratios). <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span lang=EN-US style='font-family:
+Symbol;mso-ansi-language:EN-US'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span lang=EN-US style='mso-ansi-language:EN-US'><a
+href="fusion/index.htm">Tools for fusion</a> of multiple detection scores.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<h2>Updates</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>This version was released in July 2005. Please visit this
+page again in future to check for updates or corrections. </p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<h2>Feedback</h2>
+
+<p class=MsoNormal>Bug reports and other feedback are welcome. Email me at <i>niko
+dot brummer at gmail dot com</i>.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:36.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo4;
+tab-stops:list 36.0pt'><![if !supportLists]>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><![endif]>Niko Brummer, July 2005. </p>
+
+<p class=MsoNormal><span lang=EN-US style='mso-ansi-language:EN-US'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

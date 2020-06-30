@@ -1,0 +1,532 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./index_files/filelist.xml">
+<link rel=Edit-Time-Data href="./index_files/editdata.mso">
+<link rel=OLE-Object-Data href="./index_files/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>How to evaluate the goodness of detection log-likelihood-ratios</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Brummer</o:Author>
+  <o:LastAuthor>Niko Brummer</o:LastAuthor>
+  <o:Revision>11</o:Revision>
+  <o:TotalTime>529</o:TotalTime>
+  <o:Created>2005-07-14T15:10:00Z</o:Created>
+  <o:LastSaved>2005-07-18T20:27:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>782</o:Words>
+  <o:Characters>4461</o:Characters>
+  <o:Company>Spescom Datavoice (PTY) LTD</o:Company>
+  <o:Lines>37</o:Lines>
+  <o:Paragraphs>8</o:Paragraphs>
+  <o:CharactersWithSpaces>5478</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Courier;
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-alt:"Courier New";
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0mm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0mm;
+	margin-bottom:3.0pt;
+	margin-left:0mm;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{margin-top:0mm;
+	margin-right:0mm;
+	margin-bottom:0mm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoBodyTextIndent2, li.MsoBodyTextIndent2, div.MsoBodyTextIndent2
+	{margin-top:0mm;
+	margin-right:0mm;
+	margin-bottom:0mm;
+	margin-left:72.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:325018184;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1102090466 -255962822 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:72.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l1
+	{mso-list-id:1835338609;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1301340204 -255962822 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F02D;
+	mso-level-tab-stop:38.5pt;
+	mso-level-number-position:left;
+	margin-left:38.5pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0mm;}
+ul
+	{margin-bottom:0mm;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1069"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:36.0pt'>
+
+<div class=Section1>
+
+<h1>S-Cal</h1>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>This is a discriminatively trainable <a href="..\index.htm">calibration</a>
+mapping, to convert detection <i>scores</i> to <a href="..\..\index.htm">detection
+<i>log-likelihood-ratios</i></a>.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>This form of calibration is suitable for scores that are
+already ‘close’ in some sense to log-likelihood-ratios. An example would be a <i>T-normed</i>
+GMM score.<span style="mso-spacerun: yes">  </span>In most cases a simple
+linear calibration mapping (shifting and scaling) will convert this kind of
+score to an acceptable log-likelihood-ratio. But for good measure, we include
+soft saturation of the log-likelihood-ratio. This is a good idea if the quality
+of the log-likelihood-ratio will be evaluated via <i><a href="../../index.htm">Cllr</a></i>.
+Examples of the form of the <i>S-cal</i> mapping look like this:</p>
+
+<p class=MsoNormal><i><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></i></p>
+
+<p class=MsoNormal><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
+ o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f"
+ stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:400.2pt;
+ height:300pt'>
+ <v:imagedata src="./index_files/image001.emz" o:title="s_cal"/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=534 height=400
+src="./index_files/image002.gif" v:shapes="_x0000_i1025"><![endif]></p>
+
+<p class=MsoNormal><i><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></i></p>
+
+<p class=MsoNormal><i>S-cal</i> is a linear mapping, followed by a sigmoid
+saturation. Mathematically, a score <i>s</i> is mapped as follows:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+style='mso-text-raise:-14.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1026"
+ type="#_x0000_t75" style='width:167.4pt;height:34.8pt' o:ole="">
+ <v:imagedata src="./index_files/image003.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=223 height=46
+src="./index_files/image004.gif" v:shapes="_x0000_i1026"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1026"
+  DrawAspect="Content" ObjectID="_1183230872">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The linear part of the mapping is parameterized by the slope
+<i>a</i> and the offset <i>b</i>. The sigmoid saturation is parameterized by <span
+style='mso-text-raise:-3.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1027"
+ type="#_x0000_t75" style='width:12pt;height:10.8pt' o:ole="">
+ <v:imagedata src="./index_files/image005.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=16 height=14
+src="./index_files/image006.gif" v:shapes="_x0000_i1027"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1027"
+  DrawAspect="Content" ObjectID="_1183230873">
+ </o:OLEObject>
+</xml><![endif]--><span style="mso-spacerun: yes"> </span>and <span
+style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1028"
+ type="#_x0000_t75" style='width:12pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image007.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=16 height=22
+src="./index_files/image008.gif" v:shapes="_x0000_i1028"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1028"
+  DrawAspect="Content" ObjectID="_1183230874">
+ </o:OLEObject>
+</xml><![endif]--><i>&nbsp;.</i> If</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1029" type="#_x0000_t75" style='width:31.8pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image009.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=42 height=22
+src="./index_files/image010.gif" v:shapes="_x0000_i1029"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1029"
+  DrawAspect="Content" ObjectID="_1183230875">
+ </o:OLEObject>
+</xml><![endif]--></span>&nbsp;, then the sigmoid mapping is monotonically
+increasing,</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1030" type="#_x0000_t75" style='width:33pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image011.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=44 height=22
+src="./index_files/image012.gif" v:shapes="_x0000_i1030"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1030"
+  DrawAspect="Content" ObjectID="_1183230876">
+ </o:OLEObject>
+</xml><![endif]--></span>&nbsp;, then the sigmoid mapping is flat: <span
+style='font-family:"Courier New"'>llr(<i>s</i>)&nbsp;=&nbsp;0</span>,</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1031" type="#_x0000_t75" style='width:31.8pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image013.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=42 height=21
+src="./index_files/image014.gif" v:shapes="_x0000_i1031"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1031"
+  DrawAspect="Content" ObjectID="_1183230877">
+ </o:OLEObject>
+</xml><![endif]--></span>&nbsp;, then the sigmoid mapping is monotonically
+decreasing,</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='mso-text-raise:-3.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1032" type="#_x0000_t75" style='width:36pt;height:13.8pt' o:ole="">
+ <v:imagedata src="./index_files/image015.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=48 height=18
+src="./index_files/image016.gif" v:shapes="_x0000_i1032"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1032"
+  DrawAspect="Content" ObjectID="_1183230878">
+ </o:OLEObject>
+</xml><![endif]--></span><span style="mso-spacerun: yes"> </span>and<span
+style="mso-spacerun: yes">  </span><span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1033" type="#_x0000_t75" style='width:37.2pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image017.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=50 height=22
+src="./index_files/image018.gif" v:shapes="_x0000_i1033"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1033"
+  DrawAspect="Content" ObjectID="_1183230879">
+ </o:OLEObject>
+</xml><![endif]-->, then the (monotonically increasing) sigmoid has minimum and
+maximum defined in terms of <span style='mso-text-raise:-3.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1034" type="#_x0000_t75" style='width:12pt;height:10.8pt' o:ole="">
+ <v:imagedata src="./index_files/image005.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=16 height=14
+src="./index_files/image019.gif" v:shapes="_x0000_i1034"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1034"
+  DrawAspect="Content" ObjectID="_1183230880">
+ </o:OLEObject>
+</xml><![endif]--><span style="mso-spacerun: yes"> </span>and <span
+style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1035"
+ type="#_x0000_t75" style='width:12pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image007.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=16 height=21
+src="./index_files/image020.gif" v:shapes="_x0000_i1035"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1035"
+  DrawAspect="Content" ObjectID="_1183230881">
+ </o:OLEObject>
+</xml><![endif]--><i>&nbsp;</i>:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:20.5pt'><span style='mso-text-raise:-11.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1036" type="#_x0000_t75" style='width:160.2pt;height:22.8pt'
+ o:ole="">
+ <v:imagedata src="./index_files/image021.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=214 height=30
+src="./index_files/image022.gif" v:shapes="_x0000_i1036"><![endif]><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1036"
+  DrawAspect="Content" ObjectID="_1183230882">
+ </o:OLEObject>
+</xml><![endif]--></span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The name <i>S-cal</i> is mnemonic for the sigmoid shape of
+the mapping. <i>S-cal</i> can be used on its own, or as the final stage in a
+chain of calibration stages. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Where does this particular mapping come from? Practically it
+seems to be a good idea: the saturation avoids high <i>Cllr</i> penalties. But <a
+href="derivation.htm">here</a> is where the idea comes from.<span
+style="mso-spacerun: yes">   </span></p>
+
+<h2>Training S-cal</h2>
+
+<p class=MsoNormal><i>S-cal</i> can be discriminatively trained on a set of
+development scores. This means the <i>S-cal</i> parameters <span
+style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape id="_x0000_i1037"
+ type="#_x0000_t75" style='width:54pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image023.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=72 height=21
+src="./index_files/image024.gif" v:shapes="_x0000_i1037"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1037"
+  DrawAspect="Content" ObjectID="_1183230883">
+ </o:OLEObject>
+</xml><![endif]--><span style="mso-spacerun: yes"> </span>are optimized so that
+the development scores mapped to log-likelihood-ratios via <i>S-cal</i>,
+minimize the objective <i>Cllr</i>. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The whole procedure can be summarized as follows:</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Select
+a set of <i>supervised calibration trials</i> (target trials and non-target
+trials) to be used for this purpose. The selection of these trials is <i>very
+important</i>:</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>The trials must be as similar as possible to the trials
+for which this calibration will be employed in future.</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>The trials must be sufficiently numerous. (You will
+probably find that as you use fewer trials for this purpose, the magnitudes
+of<span style="mso-spacerun: yes">  </span><i><span style='font-family:Symbol;
+mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:"Times New Roman";
+mso-char-type:symbol;mso-symbol-font-family:Symbol'><span style='mso-char-type:
+symbol;mso-symbol-font-family:Symbol'>a</span></span> </i>and<i> </i><i><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>b</span></span></i>
+become smaller.)</p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo2;
+tab-stops:list 72.0pt'><![if !supportLists]><span style='font-family:"Courier New";
+mso-bidi-font-family:"Times New Roman"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>These trials must (ideally) not have been used for
+other system-wide training, such as the training of fusion parameters to
+combine different detection sub-systems. The higher the <i>capacity</i>
+(roughly the number of parameters) of such system-wide training, the more is
+the danger that the scores obtained from these trials will be unsuitable for
+calibration purposes.</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Run
+the system under calibration on these trials, to obtain sets of <i>target</i>
+and <i>non-target</i> scores.</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Use
+these scores as input to the MATLAB function <a
+href="../../../matlab/calibration/s_cal/train_s_cal.m">train_s_cal.m</a>. The
+output is the parameter set <span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1038" type="#_x0000_t75" style='width:54pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image023.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=72 height=22
+src="./index_files/image025.gif" v:shapes="_x0000_i1038"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1038"
+  DrawAspect="Content" ObjectID="_1183230884">
+ </o:OLEObject>
+</xml><![endif]-->. These parameters can then be used to map new scores:</p>
+
+<h2><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></h2>
+
+<h2>Calibrating new scores</h2>
+
+<p class=MsoNormal>To map new scores to log-likelihood-ratios, simply call <a
+href="../../../matlab/calibration/s_cal/s_cal.m">s_cal.m</a> with the trained
+parameters <span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1039" type="#_x0000_t75" style='width:54pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image023.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=72 height=21
+src="./index_files/image026.gif" v:shapes="_x0000_i1039"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1039"
+  DrawAspect="Content" ObjectID="_1183230885">
+ </o:OLEObject>
+</xml><![endif]--><span style="mso-spacerun: yes"> </span>and the scores to be
+mapped.</p>
+
+<h2>How does it work?</h2>
+
+<p class=MsoNormal>The function <a
+href="../../../matlab/calibration/s_cal/train_s_cal.m">train_s_cal.m</a> discriminatively
+optimizes the parameters to minimize the objective <i>Cllr</i> on the given
+training scores. For simplicity, we used a numerical optimization routine (see
+below) which does not require the use of derivatives of the objective function.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Note that we found it necessary to regularize the objective
+function by adding a penalty <span style='mso-text-raise:-5.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1040" type="#_x0000_t75" style='width:49.2pt;height:16.2pt' o:ole="">
+ <v:imagedata src="./index_files/image027.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=66 height=22
+src="./index_files/image028.gif" v:shapes="_x0000_i1040"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1040"
+  DrawAspect="Content" ObjectID="_1183230886">
+ </o:OLEObject>
+</xml><![endif]-->. If <span style='mso-text-raise:-3.0pt'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1041" type="#_x0000_t75" style='width:10.8pt;height:13.8pt' o:ole="">
+ <v:imagedata src="./index_files/image029.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=15 height=18
+src="./index_files/image030.gif" v:shapes="_x0000_i1041"><![endif]></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1041"
+  DrawAspect="Content" ObjectID="_1183230887">
+ </o:OLEObject>
+</xml><![endif]-->is zero, the minimization objective may be ill-conditioned.
+For details, see the code.<span style="mso-spacerun: yes">  </span></p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span></p>
+
+<h2>Software</h2>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo4;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>You
+will need several of the functions in <a href="..\..\..\matlab\FoCal.zip">FoCal.zip</a>.</p>
+
+<p class=MsoNormal style='margin-left:38.5pt;text-indent:-18.0pt;mso-list:l1 level1 lfo4;
+tab-stops:list 38.5pt'><![if !supportLists]><span style='font-family:Symbol'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>You
+will also need the numerical optimization functional <span style='font-family:
+Courier'>fmins.m</span>, which is distributed with MATLAB. (We tested it in
+MATLAB version 5.2). If you do not have <span style='font-family:Courier'>fmins.m</span>
+available, you can implement it yourself by using, for example, the fairly
+simple <a href="http://www.library.cornell.edu/nr/bookcpdf/c10-4.pdf">Nelder-Mead
+downhill simplex method</a>, as described in the <a href="http://www.nr.com/">Numerical
+Recipes</a> series of books. (Since S-cal is differentiable with respect to its
+parameters, other more sophisticated gradient descent methods may also be
+used.)</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><a
+href="..\..\..\index.htm">../../../ back to FoCal Toolkit Home.</a></span></p>
+
+</div>
+
+</body>
+
+</html>
